@@ -235,6 +235,8 @@ def resolution(kb):
     :param kb: The knowledge base to be extended
     :return: The extended knowledge base
     """
+    allinferred = []
+    allresolvents = []
     while not contains_empty_clause(kb):
         inferred = []
 
@@ -263,10 +265,10 @@ def init():
     """
     kb = []
 
-    pluh = input()
+    kb_raw = input()
     ap = ""
-    for index, i in enumerate(pluh[1:]):
-        if index == len(pluh)-2:
+    for index, i in enumerate(kb_raw[1:]):
+        if index == len(kb_raw)-2:
             break
         if i == "[":
             ap = ""
@@ -277,15 +279,6 @@ def init():
             continue
         ap += i
 
-
-
-    """
-    kb.append(Clause("~a,~b"))
-    kb.append(Clause("a,~b,~c,~d"))
-    kb.append(Clause("b,~d"))
-    kb.append(Clause("c,~d"))
-    kb.append(Clause("d"))
-    """
     return kb
 
 
@@ -294,22 +287,21 @@ def init():
 ##
 
 def recursive_print_proof(idx, clause_set):
-    #might need to use this
-    #if is_element_of_clause_set(empty, clause_set):
-    #empty = Clause("")
-    #.negative returns if it is negative
-    #base_case =
-    infer = []
-    for i, clause in enumerate(clause_set):
-        if can_resolve(clause_set[i], clause_set[idx]):
-            infer.append(resolve_clauses(clause_set[i], clause_set[idx]))
-    for i in infer:
-        i.print_clause()
-    print(idx)
-    recursive_print_proof(idx - 1, clause_set)
 
 
-
+    for i in range(len(clause_set)):
+        for j in range(i, len(clause_set)-1):
+            resolutions = can_resolve(clause_set[i], clause_set[j]) and resolve_clauses(clause_set[i], clause_set[j])
+            if resolutions and clause_set[idx].equals(resolutions):
+                    recursive_print_proof(find_index_of_clause(clause_set[i], clause_set), clause_set)
+                    recursive_print_proof(find_index_of_clause(clause_set[j], clause_set), clause_set)
+                    clause_set[idx].print_clause()
+                    print(" is inferred from ", end="")
+                    clause_set[i].print_clause()
+                    print(" and  ", end="")
+                    clause_set[j].print_clause()
+                    print(".")
+                    return None
 
 
 def print_proof(clause_set):
@@ -321,7 +313,7 @@ def print_proof(clause_set):
 def main():
     kb = init()
 
-    print("KB= ")
+    print("KB= ", end="")
     print_clause_set(kb)
 
     kb = resolution(kb)
